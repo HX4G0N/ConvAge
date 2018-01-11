@@ -40,16 +40,16 @@ class FaceData(data.Dataset):
         img_folder = self.image_folders[index]
 
         img = Image.open(os.path.join(self.root_dir_name,
-                                      img_folder, '1.png')).convert('RGB')
+                                      img_folder, 'y/1.png')).convert('RGB')
         #center_crop = transforms.CenterCrop(240)
         #img = center_crop(img)
         img = to_tensor(img)
 
         target = Image.open(os.path.join(self.root_dir_name,
                                          img_folder,
-                                         'y/1.png'))
+                                         '1.png'))
         #target = center_crop(target)
-        target = to_tensor(img)
+        target = to_tensor(target)
         #target_labels = torch.from_numpy(target_labels.copy())
 
         return img, target
