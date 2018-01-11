@@ -15,7 +15,7 @@ class FaceData(data.Dataset):
         self.root_dir_name = os.path.dirname(image_paths_file)
 
         with open(image_paths_file) as f:
-            self.image_folders = f.read().splitlines()
+            self.image_folders = f.read().splitlines() #Carlo was here
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -38,18 +38,17 @@ class FaceData(data.Dataset):
     def get_item_from_index(self, index):
         to_tensor = transforms.ToTensor()
         img_folder = self.image_folders[index]
-
         img = Image.open(os.path.join(self.root_dir_name,
-                                      img_folder, '1.png')).convert('RGB')
+                                      img_folder, 'y/1.png')).convert('RGB')
         #center_crop = transforms.CenterCrop(240)
         #img = center_crop(img)
         img = to_tensor(img)
 
         target = Image.open(os.path.join(self.root_dir_name,
-                                         img_folder,
-                                         'y/1.png'))
-        #target = center_crop(target)
-        target = to_tensor(img)
-        #target_labels = torch.from_numpy(target_labels.copy())
+                                         img_folder, '1.png')).convert('RGB')
+        
+        target = to_tensor(target)
+        
+
 
         return img, target
