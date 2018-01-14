@@ -119,14 +119,14 @@ class Solver(object):
                     inputs, targets = inputs.cuda(), targets.cuda()
 
                 outputs = model.forward(inputs)
-                loss = self.loss_func(outputs, targets)
+                loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
                 val_losses.append(loss.data.cpu().numpy())
 
                 _, preds = torch.max(outputs, 1)
 
                 # Only allow images/pixels with target >= 0 e.g. for segmentation
                 targets_mask = targets >= 0
-                scores = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
+                scores = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
                 val_scores.append(scores)
 
             model.train()
