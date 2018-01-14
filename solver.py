@@ -47,7 +47,11 @@ class Solver(object):
         iter_per_epoch = len(train_loader)
 
         if torch.cuda.is_available():
+<<<<<<< Updated upstream
              model.cuda()
+=======
+            model.cuda()
+>>>>>>> Stashed changes
 
         print('START TRAIN.')
         ########################################################################
