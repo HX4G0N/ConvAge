@@ -46,8 +46,8 @@ class Solver(object):
         self._reset_histories()
         iter_per_epoch = len(train_loader)
 
-        # if torch.cuda.is_available():\
-        #     model.cuda()
+        if torch.cuda.is_available():
+             model.cuda()
 
         print('START TRAIN.')
         ########################################################################
@@ -81,7 +81,7 @@ class Solver(object):
 
                 optim.zero_grad()
                 outputs = model(inputs)
-                loss = self.loss_func(outputs, targets.type(torch.LongTensor))
+                loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
                 loss.backward()
                 optim.step()
 
@@ -98,7 +98,7 @@ class Solver(object):
 
             # Only allow images/pixels with label >= 0 e.g. for segmentation
             targets_mask = targets >= 0
-            train_acc = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
+            train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
             self.train_acc_history.append(train_acc)
             if log_nth:
                 print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
