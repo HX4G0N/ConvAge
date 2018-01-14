@@ -1487,4 +1487,3 @@ russell_brand2
 russell_brand3
 russell_crowe1
 russell_westbrook1
-train.txt

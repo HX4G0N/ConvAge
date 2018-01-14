@@ -53,6 +53,5 @@ class FaceData(data.Dataset):
         target *= 255
         target = np.floor(target)
         #target = torch.from_numpy(target)
-        print(target)
 
         return img, target
