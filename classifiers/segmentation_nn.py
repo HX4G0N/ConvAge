@@ -103,12 +103,6 @@ class SegmentationNN(nn.Module):
         torch.save(self, path)
 
 
-
-
-
-
-
-
 class segnetDown2(nn.Module):
     def __init__(self, in_size, out_size):
         super(segnetDown2, self).__init__()

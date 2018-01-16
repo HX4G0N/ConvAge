@@ -10,14 +10,12 @@ class ConvAgeNN(nn.Module):
     def __init__(self, n_classes=256, in_channels=1, is_unpooling=True):
         super(ConvAgeNN, self).__init__()
 
-        ########################################################################
-        #                             YOUR CODE                                #
-        ########################################################################
         self.in_channels = in_channels
         self.is_unpooling = is_unpooling
-
-        self.down1 = segnetDown2(self.in_channels, 128)
-        self.down2 = segnetDown2(128, 256)
+        self.spatial1 = #spatial convolution Torch
+        self.spatial2 = #spatial convolution Torch
+        self.down1 = segnetDown2(self.in_channels, 256)
+        self.down2 = segnetDown2(256, 256)
         self.down3 = segnetDown3(256, 512)
         self.down4 = segnetDown3(512, 1024)
         self.down5 = segnetDown3(1024, 1024)
