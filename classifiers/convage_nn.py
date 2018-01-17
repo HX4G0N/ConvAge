@@ -7,13 +7,11 @@ import torch.nn.functional as F
 
 class ConvAgeNN(nn.Module):
 
-    def __init__(self, n_classes=256, in_channels=1, is_unpooling=True):
+    def __init__(self, n_classes=256, in_channels=3, is_unpooling=True):
         super(ConvAgeNN, self).__init__()
 
         self.in_channels = in_channels
         self.is_unpooling = is_unpooling
-        self.spatial1 = #spatial convolution Torch
-        self.spatial2 = #spatial convolution Torch
         self.down1 = segnetDown2(self.in_channels, 256)
         self.down2 = segnetDown2(256, 256)
         self.down3 = segnetDown3(256, 512)
