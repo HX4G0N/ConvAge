@@ -81,7 +81,11 @@ class Solver(object):
 
                 optim.zero_grad()
                 outputs = model(inputs)
-                loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
+                if model.is_cuda:
+                    loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
+                else:
+                    loss = self.loss_func(outputs, targets.type(torch.LongTensor))
+
                 loss.backward()
                 optim.step()
 
@@ -98,7 +102,10 @@ class Solver(object):
 
             # Only allow images/pixels with label >= 0 e.g. for segmentation
             targets_mask = targets >= 0
-            train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            if model.is_cuda:
+                train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            else:
+                train_acc = np.mean((preds == targets.type(torch.LongTensor))[targets_mask].data.cpu().numpy())
             self.train_acc_history.append(train_acc)
             if log_nth:
                 print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
