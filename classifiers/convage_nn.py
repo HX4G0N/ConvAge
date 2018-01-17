@@ -5,28 +5,24 @@ import torch.nn.functional as F
 
 
 
-class SegmentationNN(nn.Module):
+class ConvAgeNN(nn.Module):
 
     def __init__(self, n_classes=256, in_channels=3, is_unpooling=True):
-        super(SegmentationNN, self).__init__()
+        super(ConvAgeNN, self).__init__()
 
-        ########################################################################
-        #                             YOUR CODE                                #
-        ########################################################################
         self.in_channels = in_channels
         self.is_unpooling = is_unpooling
+        self.down1 = segnetDown2(self.in_channels, 256)
+        self.down2 = segnetDown2(256, 256)
+        self.down3 = segnetDown3(256, 512)
+        self.down4 = segnetDown3(512, 1024)
+        self.down5 = segnetDown3(1024, 1024)
 
-        self.down1 = segnetDown2(self.in_channels, 64)
-        self.down2 = segnetDown2(64, 128)
-        self.down3 = segnetDown3(128, 256)
-        self.down4 = segnetDown3(256, 512)
-        self.down5 = segnetDown3(512, 512)
-
-        self.up5 = segnetUp3(512, 512)
-        self.up4 = segnetUp3(512, 256)
-        self.up3 = segnetUp3(256, 128)
-        self.up2 = segnetUp2(128, 64)
-        self.up1 = segnetUp2(64, n_classes)
+        self.up5 = segnetUp3(1024, 1024)
+        self.up4 = segnetUp3(1024, 512)
+        self.up3 = segnetUp3(512, 256)
+        self.up2 = segnetUp2(256, 256)
+        self.up1 = segnetUp2(256, n_classes)
 
     def forward(self, inputs):
 
@@ -101,7 +97,6 @@ class SegmentationNN(nn.Module):
         """
         print('Saving model... %s' % path)
         torch.save(self, path)
-
 
 class segnetDown2(nn.Module):
     def __init__(self, in_size, out_size):
