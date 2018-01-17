@@ -49,6 +49,7 @@ class Solver(object):
         if torch.cuda.is_available():
              model.cuda()
 
+
         print('START TRAIN.')
         ########################################################################
         # TODO:                                                                #
