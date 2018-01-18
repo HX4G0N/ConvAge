@@ -19,9 +19,11 @@ class SegmentationNN(nn.Module):
         self.down1 = VGGDown2(self.in_channels, 64)
         self.down2 = VGGDown2(64, 128)
 
+
         self.down3 = segnetDown3(128, 256)
         self.down4 = segnetDown3(256, 512)
         self.down5 = segnetDown3(512, 512)
+
 
         self.up5 = segnetUp3(512, 512)
         self.up4 = segnetUp3(512, 256)
@@ -29,21 +31,32 @@ class SegmentationNN(nn.Module):
         self.up2 = segnetUp2(128, 64)
         self.up1 = segnetUp2(64, n_classes)
 
+
         if init_weight:
             self.init_vggFACE_params()
 
     def forward(self, inputs):
         down1, indices_1, unpool_shape1 = self.down1(inputs)
+        print(down1[0].size())
         down2, indices_2, unpool_shape2 = self.down2(down1)
+        print(down2[0].size())
         down3, indices_3, unpool_shape3 = self.down3(down2)
+        print(down3[0].size())
         down4, indices_4, unpool_shape4 = self.down4(down3)
+        print(down4[0].size())
         down5, indices_5, unpool_shape5 = self.down5(down4)
+        print(down5[0].size())
 
         up5 = self.up5(down5, indices_5, unpool_shape5)
+        print(up5[0].size())
         up4 = self.up4(up5, indices_4, unpool_shape4)
+        print(up4[0].size())
         up3 = self.up3(up4, indices_3, unpool_shape3)
+        print(up3[0].size())
         up2 = self.up2(up3, indices_2, unpool_shape2)
+        print(up2[0].size())
         up1 = self.up1(up2, indices_1, unpool_shape1)
+        print(up1[0].size())
         return up1
 
     def init_vggFACE_params(self):
