@@ -49,6 +49,7 @@ class Solver(object):
         if torch.cuda.is_available():
              model.cuda()
 
+
         print('START TRAIN.')
         ########################################################################
         # TODO:                                                                #
@@ -81,7 +82,11 @@ class Solver(object):
 
                 optim.zero_grad()
                 outputs = model(inputs)
-                loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
+                if model.is_cuda:
+                    loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
+                else:
+                    loss = self.loss_func(outputs, targets.type(torch.LongTensor))
+
                 loss.backward()
                 optim.step()
 
@@ -98,7 +103,10 @@ class Solver(object):
 
             # Only allow images/pixels with label >= 0 e.g. for segmentation
             targets_mask = targets >= 0
-            train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            if model.is_cuda:
+                train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            else:
+                train_acc = np.mean((preds == targets.type(torch.LongTensor))[targets_mask].data.cpu().numpy())
             self.train_acc_history.append(train_acc)
             if log_nth:
                 print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
@@ -115,14 +123,14 @@ class Solver(object):
                     inputs, targets = inputs.cuda(), targets.cuda()
 
                 outputs = model.forward(inputs)
-                loss = self.loss_func(outputs, targets)
+                loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
                 val_losses.append(loss.data.cpu().numpy())
 
                 _, preds = torch.max(outputs, 1)
 
                 # Only allow images/pixels with target >= 0 e.g. for segmentation
                 targets_mask = targets >= 0
-                scores = np.mean((preds == targets)[targets_mask].data.cpu().numpy())
+                scores = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
                 val_scores.append(scores)
 
             model.train()
