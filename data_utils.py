@@ -49,9 +49,11 @@ class FaceData(data.Dataset):
         img = Image.open(os.path.join(self.root_dir_name,
                                       img_folder, 'y/1.png'))
         img_dat = np.array(img)
+        img_dat[:,:,3] = img_dat[:,:,3]>0
         img_dat[:,:,0] = img_dat[:,:,0] * img_dat[:,:,3]
         img_dat[:,:,1] = img_dat[:,:,1] * img_dat[:,:,3]
         img_dat[:,:,2] = img_dat[:,:,2] * img_dat[:,:,3]
+        img_dat[:,:,3] = img_dat[:,:,3] * 255
         img = Image.fromarray(img_dat).convert('RGB')
         grayscale = transforms.Grayscale()
         #img = grayscale(img)
