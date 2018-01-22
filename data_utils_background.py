@@ -16,7 +16,7 @@ from torchvision import transforms
 
 import _pickle as pickle
 
-class FaceData(data.Dataset):
+class FaceDataCropped(data.Dataset):
 
     def __init__(self, image_paths_file):
         self.root_dir_name = os.path.dirname(image_paths_file)
@@ -47,13 +47,27 @@ class FaceData(data.Dataset):
         img_folder = self.image_folders[index]
 
         img = Image.open(os.path.join(self.root_dir_name,
-                                      img_folder, 'y/1.png')).convert('RGB')
+                                      img_folder, 'y/1.png'))
+        img_dat = np.array(img)
+        img_dat[:,:,3] = img_dat[:,:,3]>0
+        img_dat[:,:,0] = img_dat[:,:,0] * img_dat[:,:,3]
+        img_dat[:,:,1] = img_dat[:,:,1] * img_dat[:,:,3]
+        img_dat[:,:,2] = img_dat[:,:,2] * img_dat[:,:,3]
+        img_dat[:,:,3] = img_dat[:,:,3] * 255
+        img = Image.fromarray(img_dat).convert('RGB')
         grayscale = transforms.Grayscale()
         #img = grayscale(img)
         img = to_tensor(img)
         target = Image.open(os.path.join(self.root_dir_name,
                                         img_folder,
                                          '1.png'))
+        targ_dat = np.array(target)
+        targ_dat[:,:,3] = targ_dat[:,:,3]>0
+        targ_dat[:,:,0] = targ_dat[:,:,0] * targ_dat[:,:,3]
+        targ_dat[:,:,1] = targ_dat[:,:,1] * targ_dat[:,:,3]
+        targ_dat[:,:,2] = targ_dat[:,:,2] * targ_dat[:,:,3]
+        targ_dat[:,:,3] = targ_dat[:,:,3] * 255
+        target = Image.fromarray(targ_dat).convert('RGB')
         target = grayscale(target)
         target = to_tensor(target)
         target = torch.squeeze(target)
