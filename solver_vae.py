@@ -1,0 +1,156 @@
+from random import shuffle
+import numpy as np
+
+import torch
+from torch.autograd import Variable
+
+
+class Solver(object):
+    default_adam_args = {"lr": 1e-4,
+                         "betas": (0.9, 0.999),
+                         "eps": 1e-8,
+                         "weight_decay": 0.0}
+
+    def __init__(self, optim=torch.optim.Adam, optim_args={},
+                 loss_func=torch.nn.CrossEntropyLoss()):
+        optim_args_merged = self.default_adam_args.copy()
+        optim_args_merged.update(optim_args)
+        self.optim_args = optim_args_merged
+        self.optim = optim
+        self.loss_func = loss_func
+
+        self._reset_histories()
+
+    def _reset_histories(self):
+        """
+        Resets train and val histories for the accuracy and the loss.
+        """
+        self.train_loss_history = []
+        self.train_acc_history = []
+        self.val_acc_history = []
+        self.val_loss_history = []
+
+    def loss_function(recon_x, x, mu, logvar):
+        reconstruction_function = nn.BCELoss()
+        reconstruction_function.size_average = False
+        BCE = reconstruction_function(recon_x, x)
+
+        # https://arxiv.org/abs/1312.6114 (Appendix B)
+        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
+        KLD_element = mu.pow(2).add_(logvar.exp()).mul_(-1).add_(1).add_(logvar)
+        KLD = torch.sum(KLD_element).mul_(-0.5)
+
+        return BCE + KLD
+
+    def train(self, model, train_loader, val_loader, num_epochs=10, log_nth=0):
+        """
+        Train a given model with the provided data.
+
+        Inputs:
+        - model: model object initialized from a torch.nn.Module
+        - train_loader: train data in torch.utils.data.DataLoader
+        - val_loader: val data in torch.utils.data.DataLoader
+        - num_epochs: total number of training epochs
+        - log_nth: log training accuracy and loss every nth iteration
+        """
+        #optim = self.optim(model.parameters(), **self.optim_args)
+        optim = self.optim(filter(lambda p: p.requires_grad, model.parameters()), **self.optim_args)
+        self._reset_histories()
+        iter_per_epoch = len(train_loader)
+
+        if torch.cuda.is_available():
+             model.cuda()
+
+
+        print('START TRAIN.')
+        ########################################################################
+        # TODO:                                                                #
+        # Write your own personal training method for our solver. In each      #
+        # epoch iter_per_epoch shuffled training batches are processed. The    #
+        # loss for each batch is stored in self.train_loss_history. Every      #
+        # log_nth iteration the loss is logged. After one epoch the training   #
+        # accuracy of the last mini batch is logged and stored in              #
+        # self.train_acc_history. We validate at the end of each epoch, log    #
+        # the result and store the accuracy of the entire validation set in    #
+        # self.val_acc_history.                                                #
+        #                                                                      #
+        # Your logging could like something like:                              #
+        #   ...                                                                #
+        #   [Iteration 700/4800] TRAIN loss: 1.452                             #
+        #   [Iteration 800/4800] TRAIN loss: 1.409                             #
+        #   [Iteration 900/4800] TRAIN loss: 1.374                             #
+        #   [Epoch 1/5] TRAIN acc/loss: 0.560/1.374                            #
+        #   [Epoch 1/5] VAL   acc/loss: 0.539/1.310                            #
+        #   ...                                                                #
+        ########################################################################
+
+        for epoch in range(num_epochs):
+            # TRAINING
+
+            for i, data in enumerate(train_loader, 1):
+                data = Variable(data, volatile=True)
+                if model.is_cuda:
+                    data = data.cuda()
+                optim.zero_grad()
+                recon_batch, mu, logvar = model(data)
+                loss = loss_function(recon_batch, data, mu, logvar)
+                loss.backward()
+                optim.step()
+
+                self.train_loss_history.append(loss.data.cpu().numpy())
+                if log_nth and i % log_nth == 0:
+                    last_log_nth_losses = self.train_loss_history[-log_nth:]
+                    train_loss = np.mean(last_log_nth_losses)
+                    print('[Iteration %d/%d] TRAIN loss: %.3f' % \
+                        (i + epoch * iter_per_epoch,
+                         iter_per_epoch * num_epochs,
+                         train_loss))
+
+            _, preds = torch.max(outputs, 1)
+
+            # Only allow images/pixels with label >= 0 e.g. for segmentation
+            targets_mask = targets >= 0
+            if model.is_cuda:
+                train_acc = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            else:
+                train_acc = np.mean((preds == targets.type(torch.LongTensor))[targets_mask].data.cpu().numpy())
+            self.train_acc_history.append(train_acc)
+            if log_nth:
+                print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
+                                                                   num_epochs,
+                                                                   train_acc,
+                                                                   train_loss))
+            # VALIDATION
+            # val_losses = []
+            # val_scores = []
+            # model.eval()
+            # for inputs, targets in val_loader:
+            #     inputs, targets = Variable(inputs), Variable(targets)
+            #     if model.is_cuda:
+            #         inputs, targets = inputs.cuda(), targets.cuda()
+            #
+            #     outputs = model.forward(inputs)
+            #     loss = self.loss_func(outputs, targets.type(torch.cuda.LongTensor))
+            #     val_losses.append(loss.data.cpu().numpy())
+            #
+            #     _, preds = torch.max(outputs, 1)
+            #
+            #     # Only allow images/pixels with target >= 0 e.g. for segmentation
+            #     targets_mask = targets >= 0
+            #     scores = np.mean((preds == targets.type(torch.cuda.LongTensor))[targets_mask].data.cpu().numpy())
+            #     val_scores.append(scores)
+            #
+            # model.train()
+            # val_acc, val_loss = np.mean(val_scores), np.mean(val_losses)
+            # self.val_acc_history.append(val_acc)
+            # self.val_loss_history.append(val_loss)
+            # if log_nth:
+            #     print('[Epoch %d/%d] VAL   acc/loss: %.3f/%.3f' % (epoch + 1,
+            #                                                        num_epochs,
+            #                                                        val_acc,
+            #                                                        val_loss))
+
+        ########################################################################
+        #                             END OF YOUR CODE                         #
+        ########################################################################
+        print('FINISH.')
