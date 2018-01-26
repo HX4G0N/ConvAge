@@ -17,7 +17,6 @@ class ConvAgeNN(nn.Module):
 
         self.down1 = VGGDown2(self.in_channels, 64)
         self.down2 = VGGDown2(64, 128)
-
         self.down3 = segnetDown2(128, 256)
         self.down4 = segnetDown2(256, 512)
         self.down5 = segnetDown2(512, 1024)
