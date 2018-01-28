@@ -104,9 +104,9 @@ class Solver(object):
             # Only allow images/pixels with label >= 0 e.g. for segmentation
             targets_mask = targets >= 0
             if model.is_cuda:
-                train_acc = np.mean((preds - targets.type(torch.cuda.LongTensor)).data.cpu().numpy())
+                train_acc = np.mean((preds.type(torch.cuda.LongTensor) == targets.type(torch.cuda.LongTensor)).data.cpu().numpy())
             else:
-                train_acc = np.mean((preds - targets.type(torch.LongTensor)).data.cpu().numpy())
+                train_acc = np.mean((preds.type(torch.cuda.LongTensor) == targets.type(torch.LongTensor)).data.cpu().numpy())
             self.train_acc_history.append(train_acc)
             if log_nth:
                 print('[Epoch %d/%d] TRAIN acc/loss: %.3f/%.3f' % (epoch + 1,
