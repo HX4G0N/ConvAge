@@ -114,7 +114,6 @@ antonio_cassano1
 ariana_richards1
 ariana_richards2
 arizona_muse1
-aron_johannsson1
 arthur_smoljaninov1
 asa_butterfield1
 ashley_benson1
@@ -1389,4 +1388,3 @@ russell_brand2
 russell_brand3
 russell_crowe1
 russell_westbrook1
-train.txt
