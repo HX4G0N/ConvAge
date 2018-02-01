@@ -27,6 +27,7 @@ class SegmentationNN(nn.Module):
         self.up3 = segnetUp3(256, 128)
         self.up2 = segnetUp2(128, 64)
         self.up1 = segnetUp2(64, n_classes)
+        self.out = segnetOut(n_classes, 1)
 
     def forward(self, inputs):
 
@@ -41,9 +42,9 @@ class SegmentationNN(nn.Module):
         up3 = self.up3(up4, indices_3, unpool_shape3)
         up2 = self.up2(up3, indices_2, unpool_shape2)
         up1 = self.up1(up2, indices_1, unpool_shape1)
-        print(up1[0].size())
+        out = self.out(up1)
 
-        return up1
+        return out
 
 
     def init_vgg16_params(self, vgg16):
@@ -217,4 +218,13 @@ class deconv2DBatchNormRelu(nn.Module):
 
     def forward(self, inputs):
         outputs = self.dcbr_unit(inputs)
+        return outputs
+    
+class segnetOut(nn.Module):
+    def __init__(self, in_size, out_size):
+        super(segnetOut, self).__init__()
+        self.conv1 = conv2DBatchNormRelu(in_size, out_size, 3, 1, 1)
+
+    def forward(self, inputs):
+        outputs = self.conv1(inputs)
         return outputs
