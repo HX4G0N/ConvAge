@@ -15,7 +15,7 @@ class ConvAgeNN(nn.Module):
         self.in_channels = in_channels
         self.is_unpooling = is_unpooling
 
-        self.down3 = segnetDown2(128, 256)
+        self.down3 = segnetDown2(in_channels, 256)
         self.down4 = segnetDown2(256, 512)
         self.down5 = segnetDown2(512, 1024)
         self.down_ = segnetDown2(1024, 1024)
