@@ -48,17 +48,30 @@ class FaceData(data.Dataset):
 
         img = Image.open(os.path.join(self.root_dir_name,
                                       img_folder, 'y/1.png')).convert('RGB')
+
         grayscale = transforms.Grayscale()
+        #norm = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #                     std=[0.5, 0.5, 0.5])
+        topil = transforms.ToPILImage()
+
+        #img = to_tensor(img)
+        #img = norm(img)
+        #img = topil(img)
         #img = grayscale(img)
         img = to_tensor(img)
+        #img = torch.squeeze(img)
+
         target = Image.open(os.path.join(self.root_dir_name,
                                         img_folder,
                                          '1.png'))
-        target = grayscale(target)
+        #target = to_tensor(target)
+        #target = norm(target)
+        #target = topil(target)
+        #target = grayscale(target)
         target = to_tensor(target)
         target = torch.squeeze(target)
-        target *= 255
-        target = np.floor(target)
+        #target *= 255
+        #target = np.floor(target)
         #target = torch.from_numpy(target)
 
         return img, target
@@ -92,6 +105,7 @@ class FaceDataCropped(data.Dataset):
     def get_item_from_index(self, index):
         to_tensor = transforms.ToTensor()
         img_folder = self.image_folders[index]
+        grayscale = transforms.Grayscale()
 
         img = Image.open(os.path.join(self.root_dir_name,
                                       img_folder, 'y/1.png'))
@@ -102,9 +116,13 @@ class FaceDataCropped(data.Dataset):
         img_dat[:,:,2] = img_dat[:,:,2] * img_dat[:,:,3]
         img_dat[:,:,3] = img_dat[:,:,3] * 255
         img = Image.fromarray(img_dat).convert('RGB')
-        grayscale = transforms.Grayscale()
+        #norm = transforms.Normalize(mean=[0, 0, 0],
+        #                     std=[1, 1, 1])
+        #img = norm(img)
         #img = grayscale(img)
         img = to_tensor(img)
+        #img *= 255
+
         target = Image.open(os.path.join(self.root_dir_name,
                                         img_folder,
                                          '1.png'))
@@ -115,11 +133,12 @@ class FaceDataCropped(data.Dataset):
         targ_dat[:,:,2] = targ_dat[:,:,2] * targ_dat[:,:,3]
         targ_dat[:,:,3] = targ_dat[:,:,3] * 255
         target = Image.fromarray(targ_dat).convert('RGB')
+        #target = norm(target)
         target = grayscale(target)
         target = to_tensor(target)
         target = torch.squeeze(target)
-        target *= 255
-        target = np.floor(target)
+        #target *= 255
+        #target = np.floor(target)
         #target = torch.from_numpy(target)
 
         return img, target
