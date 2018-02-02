@@ -30,8 +30,8 @@ class ConvAgeNN(nn.Module):
         self.up4 = segnetUp3(512, 256)
         self.up3 = segnetUp3(256, 128)
         self.up2 = segnetUp2(128, 64)
-        self.up1 = segnetUp2(64, n_classes)
-        self.out = segnetOut(n_classes, 1)
+        self.up1 = segnetUp2(64, 1)
+        #self.out = segnetOut(n_classes, 3)
 
         if init_weight:
             self.init_vggFACE_params()
@@ -49,9 +49,9 @@ class ConvAgeNN(nn.Module):
         up3 = self.up3(up4, indices_3, unpool_shape3)
         up2 = self.up2(up3, indices_2, unpool_shape2)
         up1 = self.up1(up2, indices_1, unpool_shape1)
-        out = self.out(up1)
+        #out = self.out(up1)
 
-        return out
+        return up1
 
     def init_vggFACE_params(self):
         vgg_face_t7 = load_lua('classifiers/VGG_FACE.t7', unknown_classes=True)
@@ -106,7 +106,6 @@ class ConvAgeNN(nn.Module):
         """
         Save model with its parameters to the given path. Conventionally the
         path should end with "*.model".
-
         Inputs:
         - path: path string
         """
