@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Created on Sun Jan 21 21:20:32 2018
-
 @author: Monkey-PC
+
+Modified for needs of ConvAge project
 """
 
 """Data utility functions."""
