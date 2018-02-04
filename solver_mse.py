@@ -1,6 +1,5 @@
-from random import shuffle
+#Based on solver.py from DL4CV class
 import numpy as np
-
 import torch
 from torch.autograd import Variable
 
