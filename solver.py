@@ -1,9 +1,7 @@
-from random import shuffle
+#Based on solver.py from DL4CV class
 import numpy as np
-
 import torch
 from torch.autograd import Variable
-
 
 class Solver(object):
     default_adam_args = {"lr": 1e-4,
